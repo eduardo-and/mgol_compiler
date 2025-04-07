@@ -115,14 +115,15 @@ class Scanner:
         return token
     
     def __ReservedWordVerify(self,token:Token):
-        reservedToken = self.__find_token_by_lexeme(token.lexeme)
-        if(reservedToken):
-            col=token.col
-            line=token.line 
-            token = reservedToken
-            token.col=col
-            token.line=line
-            
+        if(token.tokenClass == TokenClass.ID):
+            reservedToken = self.__find_token_by_lexeme(token.lexeme)
+            if(reservedToken):
+                col=token.col
+                line=token.line 
+                token = reservedToken
+                token.col=col
+                token.line=line
+                
         return token
     
     def restart(self)->None:
