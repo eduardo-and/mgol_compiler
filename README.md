@@ -1,4 +1,4 @@
-# portugol_compiler
+# MGOL_compiler
 
 ## Tutorial
 
