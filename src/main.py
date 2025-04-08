@@ -7,8 +7,6 @@ from core.models.enums.token_class import TokenClass
 
 
 def main():
-    _table = PrettyTable()
-    _table.field_names = ['Classe', 'Lexema', 'Tipo', 'Linha', 'Coluna']
     parser = argparse.ArgumentParser(description="MGOL Compiler, especifique o caminho do código fonte")
     parser.add_argument("-p","--path", type=str, help="Path do arquivo com o código fonte")
     
@@ -27,14 +25,16 @@ def main():
 
             match _option:
                 case "1":
+                    table = PrettyTable()
+                    table.field_names = ['Classe', 'Lexema', 'Tipo', 'Linha', 'Coluna']
                     tokensList = scanRunner.runAll()
                     for token in tokensList:
-                        _table.add_row([token.tokenClass.value,
+                        table.add_row([token.tokenClass.value,
                                         token.lexeme,
                                         token.type,
                                         token.line,
                                         token.col])
-                    print(_table)
+                    print(table)
                 
                 case "2":
                     _key = input("Pressione Enter para prosseguir, digite q e Enter para interromper")
@@ -45,8 +45,13 @@ def main():
                             break
 
                 case "3":
-                    #aqui
-                    print('aa')
+                    table = PrettyTable()
+                    table.field_names = ['Classe', 'Lexema', 'Tipo']
+                    for symbol in scanRunner.scanner.reservedSymbolsList:
+                        table.add_row([symbol.tokenClass.value,
+                                        symbol.lexeme,
+                                        symbol.type])
+                    print(table)
 
                 case "q":
                     print("Finalizando execução...")
