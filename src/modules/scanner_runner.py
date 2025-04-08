@@ -9,8 +9,6 @@ from modules.scanner.scanner import Scanner
 
 
 class ScannerRunner:
-    _isRunningSingle = False
-    
     def __init__(self, path):   
         baseDir = Path(__file__).resolve().parent.parent.parent
         newPath = f"{baseDir}/.tmp/{path.split('/')[-1]}"
@@ -21,12 +19,9 @@ class ScannerRunner:
         self.scanner = Scanner(file=_sourceCode)
 
     def runSingle(self)->Token:
-        self._isRunningSingle = True
-        
         token = self.scanner.scan()
 
         if token.tokenClass == TokenClass.EOF:
-            self._isRunningSingle = False
             self.scanner.restart()
 
         return token
