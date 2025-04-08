@@ -10,6 +10,12 @@ class Scanner:
     currentLine: int = 0
     currentColumn: int = 0
     
+    errosByState = {
+        TokenClass.ID: "Erro2 - Identificador Invalido",
+        TokenClass.LIT: "Erro3 - Literal Invalido",
+        TokenClass.NUM: "Erro4 - Numero Invalido"
+    }
+    
     reservedSymbolsList = [
         Token(tokenClass=TokenClass.inicio, type="inicio", lexeme="inicio"),
         Token(tokenClass=TokenClass.varinicio, type="varinicio", lexeme="varinicio"),
@@ -64,8 +70,7 @@ class Scanner:
                 tmpNextState = self.__nextState(char, currentState)
                 if tmpNextState == None:
                     if token.tokenClass == TokenClass.ERROR:
-                        if lexeme == "":
-                            lexeme += chr(char)
+                        lexeme += chr(char)
                     return self.__returnToken(lexeme, currentState, token)
                 else: 
                     lexeme += chr(char)
@@ -86,6 +91,7 @@ class Scanner:
             token.lexeme = lexeme
             token = self.__setType(token)
             token = self.__reservedWordVerify(token)
+            
             token = self.__verifyError(token)
             return token
         
@@ -102,10 +108,15 @@ class Scanner:
             col=column
         )
         
-    def __verifyError(self, token: Token):
-        if token.tokenClass == TokenClass.ERROR:            
-            token.type = "Erro1 - Caractere Inválido"
-            self.currentColumn += 1
+    def __iDTreatment(self,token:Token):
+        if(token.tokenClass == TokenClass.ID):
+            if(token.lexeme.contains("-")):
+                #  set id token error
+        return token
+    def __verifyError(self,token:Token):
+        if(token.tokenClass == TokenClass.ERROR):            
+            token.type="Erro1 - Caractere Invalido"
+            self.currentColumn+=1
         return token
     
     def __setType(self, token: Token):
