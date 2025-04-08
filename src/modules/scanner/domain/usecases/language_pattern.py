@@ -2,8 +2,8 @@ from core.models.enums.token_class import TokenClass
 from modules.scanner.models.state import StateUnity
 
 class LanguagePattern:
-    statesquantity: int = 27
-    transitions= {
+    statesQuantity: int = 27
+    transitions = {
         (0,1):[range(48,58)],
         (0,11):[range(97,123), range(65,91)],
         (0,12):[34],
@@ -31,10 +31,10 @@ class LanguagePattern:
         (8,8):[range(48,58)],
         (9,10):[range(48,58)],
         (10,10):[range(48,58)],
-        (11,11):[95,range(48,58),range(97,123), range(65,91)],
-        (12,12):[range(32,34),range(35,127)], ##anything - "
+        (11,11):[95,range(48,58), range(97,123), range(65,91)],
+        (12,12):[range(32,34), range(35,127)], ##anything - "
         (12,13):[34],
-        (14,14):[range(32,125),range(126,127)], ##anything - }
+        (14,14):[range(32,125), range(126,127)], ##anything - }
         (14,15):[125],
         (18,19):[61],
         (20,21):[45],
@@ -57,17 +57,17 @@ class LanguagePattern:
     ]
     
     def __new__(self)->StateUnity:
-        states = [StateUnity(i,resultingClass=TokenClass.ERROR) for i in range(self.statesquantity+1)]
+        states = [StateUnity(i, resultingClass=TokenClass.ERROR) for i in range(self.statesQuantity+1)]
       
         for tokenRef in self.stateClass:
-            _states,_tokenClass= tokenRef
+            _states, _tokenClass= tokenRef
             for j in states:
-                if(j.id in _states):
+                if j.id in _states:
                     j.resultingClass = _tokenClass
         
-        for (key,pattern) in self.transitions.items():
+        for key, pattern in self.transitions.items():
             _from, _to = key
-            states[_from].transitions.append((pattern,states[_to]))
+            states[_from].transitions.append((pattern, states[_to]))
         
         return states[0]
         

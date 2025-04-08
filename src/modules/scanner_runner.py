@@ -1,43 +1,50 @@
-from contextvars import Token
 import os
-from pathlib import Path
 import shutil
+
+from pathlib import Path
+
+from core.models.token import Token
 from core.models.enums.token_class import TokenClass
 from modules.scanner.scanner import Scanner
 
 
 class ScannerRunner:
     _isRunningSingle = False
-
+    
     def __init__(self, path):   
-        base_dir = Path(__file__).resolve().parent.parent.parent  # sobe 1 nível de /src para o root
-        newPath= f"{base_dir}/.tmp/{path.split("/")[-1]}"
+        baseDir = Path(__file__).resolve().parent.parent.parent
+        newPath = f"{baseDir}/.tmp/{path.split('/')[-1]}"
         os.makedirs(".tmp", exist_ok=True)
-        shutil.copy(f"{base_dir}/{path}", newPath)
+        shutil.copy(f"{baseDir}/{path}", newPath)
         _sourceCode = open(newPath, "a+", encoding="utf-8")
         _sourceCode.write("\x00")
         self.scanner = Scanner(file=_sourceCode)
 
     def runSingle(self)->Token:
-        self._isRunningSingle=True
+        self._isRunningSingle = True
         
-        tokensList:list[Token] 
         token = self.scanner.scan()
-        tokensList.add(token)
-        if(token.tokenClass == TokenClass.EOF):
-            self._isRunningSingle=False
-        
+
+        if token.tokenClass == TokenClass.EOF:
+            self._isRunningSingle = False
+            self.scanner.restart()
+
         return token
     
     def runAll(self)->list[Token]:
-        tokensList:list[Token] = []
-        if(self._isRunningSingle):
-            self.scanner.restart()
+        tokensList: list[Token] = []
+
+        self.scanner.restart()
+
         while True:
             token = self.scanner.scan()
-            print(token)
             tokensList.append(token)
-            if(token.tokenClass == TokenClass.EOF):
+            if token.tokenClass == TokenClass.EOF:
                 break
-        
+
+        self.scanner.restart()
+
         return tokensList
+    
+    def end(self):
+        shutil.rmtree(".tmp")

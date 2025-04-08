@@ -16,8 +16,7 @@
     ```
     ⚠️MacOS/Linux
     ```sh
-    cd .venv\bin 
-    source activate 
+    source .venv/bin/activate
     ```
 
 3. Retorne para a raiz do projeto python e em seguida instale as dependências
@@ -29,5 +28,5 @@
 
     Abaixo temos um exemplo:
     ```sh
-        python main.py 
+        python ./src/main.py -p ./exampleCode.txt
     ```
