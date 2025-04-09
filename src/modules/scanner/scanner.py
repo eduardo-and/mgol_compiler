@@ -59,7 +59,7 @@ class Scanner:
         
             for columnIndex, char in enumerate(line):
                 if isStart:
-                    self.currentColumn = self.currentColumn - 1 if len(line)== self.currentColumn else self.currentColumn
+                    self.currentColumn = self.currentColumn - 1 if len(line) == self.currentColumn else self.currentColumn
                     if columnIndex < self.currentColumn:
                         continue
                 isStart = False
@@ -98,13 +98,13 @@ class Scanner:
         self.currentColumn = 0
         return 
     
-    def __returnToken(self, lexeme: str, resultingClass: TokenClass, token: Token, previousState: StateUnity = None)->Token:
+    def __returnToken(self, lexeme: str, resultingClass: TokenClass, token: Token, previousTokenClass: TokenClass = None)->Token:
             token.tokenClass = resultingClass
             token.lexeme = lexeme
             token = self.__setType(token)
             token = self.__reservedWordVerify(token)
-            token = self.__iDTreatment(token)
-            error = self.__verifyError(token, previousState)
+            token, idHasError = self.__iDTreatment(token)
+            error = self.__verifyError(token, previousTokenClass if not idHasError else TokenClass.ID)
             return token, error
         
     def __nextState(self, char, currentState):
@@ -121,15 +121,17 @@ class Scanner:
         )
         
     def __iDTreatment(self, token: Token):
+        hasError = False
         if token.tokenClass == TokenClass.ID:
             if "-" in token.lexeme:
                 token.tokenClass = TokenClass.ERROR
-                token.type = self.errosByState[TokenClass.ID]   
+                token.type = None
+                hasError = True
             if self.__findTokenByLexeme(token.lexeme) == None:
                 self.symbolsList.append(token)
-        return token
+        return token, hasError
     
-    def __verifyError(self, token: Token, previousTokenClass: StateUnity = None):
+    def __verifyError(self, token: Token, previousTokenClass: TokenClass = None):
         errorMessage = None
         if token.tokenClass == TokenClass.ERROR:            
             if previousTokenClass and self.errosByState.get(previousTokenClass):

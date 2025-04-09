@@ -64,7 +64,7 @@ class LanguagePattern:
         states = [StateUnity(i, resultingClass=TokenClass.ERROR) for i in range(self.statesQuantity+1)]
       
         for tokenRef in self.stateClass:
-            _states, _tokenClass= tokenRef
+            _states, _tokenClass = tokenRef
             for j in states:
                 if j.id in _states:
                     j.resultingClass = _tokenClass
