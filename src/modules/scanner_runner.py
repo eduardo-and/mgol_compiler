@@ -15,7 +15,7 @@ class ScannerRunner:
         os.makedirs(".tmp", exist_ok=True)
         shutil.copy(f"{baseDir}/{path}", newPath)
         _sourceCode = open(newPath, "a+", encoding="utf-8")
-        _sourceCode.write("\x00")
+        _sourceCode.write("\n\x00")
         self.scanner = Scanner(file=_sourceCode)
 
     def runSingle(self)->Token:

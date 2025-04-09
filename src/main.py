@@ -40,14 +40,14 @@ def main():
                     _key = input("Pressione Enter para prosseguir, digite q e Enter para interromper")
                     while True:
                         token = scanRunner.runSingle()
-                        _key = input(token)
                         if token.tokenClass == TokenClass.EOF or _key == "q":
                             break
+                        _key = input(token)
 
                 case "3":
                     table = PrettyTable()
                     table.field_names = ['Classe', 'Lexema', 'Tipo']
-                    for symbol in scanRunner.scanner.reservedSymbolsList:
+                    for symbol in scanRunner.scanner.symbolsList:
                         table.add_row([symbol.tokenClass.value,
                                         symbol.lexeme,
                                         symbol.type])
