@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 
 from core.models.token import Token
+from core.models.error import Error
 from core.models.enums.token_class import TokenClass
 from modules.scanner.scanner import Scanner
 
@@ -18,23 +19,22 @@ class ScannerRunner:
         _sourceCode.write("\n\x00")
         self.scanner = Scanner(file=_sourceCode)
 
-    def runSingle(self)->Token:
-        token,errorMessage = self.scanner.scan()
-        print(errorMessage) if errorMessage else None
+    def runSingle(self)->tuple[Token, Error]:
+        token, error = self.scanner.scan()
         if token.tokenClass == TokenClass.EOF:
             self.scanner.restart()
 
-        return token
+        return token, error
     
-    def runAll(self)->list[Token]:
-        tokensList: list[Token] = []
+    def runAll(self)->list[Token, Error]:
+        tokensList: list[Token, Error] = []
 
         self.scanner.restart()
 
         while True:
-            token,errorMessage = self.scanner.scan()
-            print(errorMessage) if errorMessage else None
+            token, error = self.scanner.scan()
             tokensList.append(token)
+            if error: tokensList.append(error)
             if token.tokenClass == TokenClass.EOF:
                 break
 

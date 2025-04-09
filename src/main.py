@@ -2,8 +2,10 @@ import argparse
 
 from prettytable import PrettyTable
 
-from modules.scanner_runner import ScannerRunner
+from core.models.token import Token
+from core.models.error import Error
 from core.models.enums.token_class import TokenClass
+from modules.scanner_runner import ScannerRunner
 
 
 def main():
@@ -28,21 +30,33 @@ def main():
                     table = PrettyTable()
                     table.field_names = ['Classe', 'Lexema', 'Tipo', 'Linha', 'Coluna']
                     tokensList = scanRunner.runAll()
-                    for token in tokensList:
-                        table.add_row([token.tokenClass.value,
-                                        token.lexeme,
-                                        token.type,
-                                        token.line,
-                                        token.col])
+                    for item in tokensList:
+                        print(item)
+                        if type(item) == Token:
+                            table.add_row([item.tokenClass.value,
+                                            item.lexeme,
+                                            item.type,
+                                            item.line,
+                                            item.col])
+                        elif type(item) == Error:
+                            table.add_row([item.message,
+                                            '-',
+                                            '-',
+                                            item.line,
+                                            item.col])
                     print(table)
                 
                 case "2":
                     _key = input("Pressione Enter para prosseguir, digite q e Enter para interromper")
                     while True:
-                        token = scanRunner.runSingle()
+                        token, error = scanRunner.runSingle()
                         if token.tokenClass == TokenClass.EOF or _key == "q":
                             break
-                        _key = input(token)
+                        if error:
+                            print(token)
+                            _key = input(error)
+                        else:
+                            _key = input(token)
 
                 case "3":
                     table = PrettyTable()

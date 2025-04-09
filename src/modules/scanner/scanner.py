@@ -1,6 +1,7 @@
 from io import TextIOWrapper
 
 from core.models.token import Token
+from core.models.error import Error
 from core.models.enums.token_class import TokenClass
 from modules.scanner.domain.usecases.language_pattern import LanguagePattern
 from modules.scanner.models.state import StateUnity
@@ -14,7 +15,8 @@ class Scanner:
     errosByState = {
         TokenClass.ID: "Erro2 - Identificador Invalido",
         TokenClass.LIT: "Erro3 - Literal Invalido",
-        TokenClass.NUM: "Erro4 - Numero Invalido"
+        TokenClass.NUM: "Erro4 - Numero Invalido",
+        TokenClass.COMMENT: "Erro5 - Comentario Invalido"
     }
     
     symbolsList = [
@@ -57,7 +59,7 @@ class Scanner:
         
             for columnIndex, char in enumerate(line):
                 if isStart:
-                    self.currentColumn = self.currentColumn-1 if len(line)== self.currentColumn else self.currentColumn
+                    self.currentColumn = self.currentColumn - 1 if len(line)== self.currentColumn else self.currentColumn
                     if columnIndex < self.currentColumn:
                         continue
                 isStart = False
@@ -74,11 +76,13 @@ class Scanner:
                 if tmpNextState == None or char == 10:
                     if currentState.resultingClass == TokenClass.ERROR or not self.__isOnLanguageDict(char):
                         lexeme += chr(char)
-                        if(currentState.id == 12):
+                        if currentState.id == 12:
                             previousTokenClass = TokenClass.LIT
+                        elif currentState.id == 14:
+                            previousTokenClass = TokenClass.COMMENT
                         else:
                             previousTokenClass = currentState.resultingClass
-                        return self.__returnToken(lexeme, TokenClass.ERROR, token,previousTokenClass)
+                        return self.__returnToken(lexeme, TokenClass.ERROR, token, previousTokenClass)
                     return self.__returnToken(lexeme, currentState.resultingClass, token)
                 else: 
                     lexeme += chr(char)
@@ -94,14 +98,14 @@ class Scanner:
         self.currentColumn = 0
         return 
     
-    def __returnToken(self, lexeme: str, resultingClass: TokenClass, token: Token, previousState:StateUnity = None)->Token:
+    def __returnToken(self, lexeme: str, resultingClass: TokenClass, token: Token, previousState: StateUnity = None)->Token:
             token.tokenClass = resultingClass
             token.lexeme = lexeme
             token = self.__setType(token)
             token = self.__reservedWordVerify(token)
             token = self.__iDTreatment(token)
-            errorMessage = self.__verifyError(token,previousState)
-            return token,errorMessage
+            error = self.__verifyError(token, previousState)
+            return token, error
         
     def __nextState(self, char, currentState):
         _nextState = currentState.doTransition(char)
@@ -116,24 +120,24 @@ class Scanner:
             col=column
         )
         
-    def __iDTreatment(self,token:Token):
-        if(token.tokenClass == TokenClass.ID):
-            if("-" in token.lexeme):
+    def __iDTreatment(self, token: Token):
+        if token.tokenClass == TokenClass.ID:
+            if "-" in token.lexeme:
                 token.tokenClass = TokenClass.ERROR
                 token.type = self.errosByState[TokenClass.ID]   
-            if(self.__findTokenByLexeme(token.lexeme)==None):
+            if self.__findTokenByLexeme(token.lexeme) == None:
                 self.symbolsList.append(token)
         return token
     
-    def __verifyError(self,token:Token,previousTokenClass:StateUnity=None):
-        errorMessage=None
-        if(token.tokenClass == TokenClass.ERROR):            
-            if(previousTokenClass and self.errosByState.get(previousTokenClass)):
+    def __verifyError(self, token: Token, previousTokenClass: StateUnity = None):
+        errorMessage = None
+        if token.tokenClass == TokenClass.ERROR:            
+            if previousTokenClass and self.errosByState.get(previousTokenClass):
                 errorMessage = self.errosByState[previousTokenClass]
             else:
-                errorMessage="Erro1 - Caractere Invalido"
-            self.currentColumn+=1
-        return errorMessage
+                errorMessage = "Erro1 - Caractere Invalido"
+            self.currentColumn += 1
+        return Error(message=errorMessage, line=token.line, col=token.col) if errorMessage != None else None
     
     def __setType(self, token: Token):
         if token.tokenClass == TokenClass.NUM:
@@ -156,13 +160,13 @@ class Scanner:
                 token.line = line
         return token
 
-    def __isOnLanguageDict(self, char:int):
+    def __isOnLanguageDict(self, char: int):
         for dict in self.languageDict:
-                if isinstance(dict, range):
-                    if char in dict:
-                        return True
-                if dict == char:
+            if isinstance(dict, range):
+                if char in dict:
                     return True
+            if dict == char:
+                return True
                 
     def __findTokenByLexeme(self, lexeme: str):
         return next((token for token in self.symbolsList if token.lexeme  == lexeme), None)

@@ -1,8 +1,8 @@
 &
 inicio
     varinicio
-        A literal;
-        B inteiro;
+        A* literal;
+        B-E inteiro;
         D inteiro;
         C real;
     varfim;
@@ -10,7 +10,7 @@ inicio
     leia B;
     escreva "Digite A:";
     leia A;
-    se(B>2)
+    se(B>2,5) {comentario 1
     entao
         se(B<=4)
         entao
