@@ -100,8 +100,8 @@ class Scanner:
             token = self.__setType(token)
             token = self.__reservedWordVerify(token)
             token = self.__iDTreatment(token)
-            token = self.__verifyError(token,previousState)
-            return token
+            errorMessage = self.__verifyError(token,previousState)
+            return token,errorMessage
         
     def __nextState(self, char, currentState):
         _nextState = currentState.doTransition(char)
@@ -126,13 +126,14 @@ class Scanner:
         return token
     
     def __verifyError(self,token:Token,previousTokenClass:StateUnity=None):
+        errorMessage=None
         if(token.tokenClass == TokenClass.ERROR):            
             if(previousTokenClass and self.errosByState.get(previousTokenClass)):
-                token.type = self.errosByState[previousTokenClass]
+                errorMessage = self.errosByState[previousTokenClass]
             else:
-                token.type="Erro1 - Caractere Invalido"
+                errorMessage="Erro1 - Caractere Invalido"
             self.currentColumn+=1
-        return token
+        return errorMessage
     
     def __setType(self, token: Token):
         if token.tokenClass == TokenClass.NUM:

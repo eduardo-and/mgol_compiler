@@ -19,8 +19,8 @@ class ScannerRunner:
         self.scanner = Scanner(file=_sourceCode)
 
     def runSingle(self)->Token:
-        token = self.scanner.scan()
-
+        token,errorMessage = self.scanner.scan()
+        print(errorMessage) if errorMessage else None
         if token.tokenClass == TokenClass.EOF:
             self.scanner.restart()
 
@@ -32,7 +32,8 @@ class ScannerRunner:
         self.scanner.restart()
 
         while True:
-            token = self.scanner.scan()
+            token,errorMessage = self.scanner.scan()
+            print(errorMessage) if errorMessage else None
             tokensList.append(token)
             if token.tokenClass == TokenClass.EOF:
                 break
