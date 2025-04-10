@@ -31,7 +31,6 @@ def main():
                     table.field_names = ['Classe', 'Lexema', 'Tipo', 'Linha', 'Coluna']
                     tokensList = scanRunner.runAll()
                     for item in tokensList:
-                        print(item)
                         if type(item) == Token:
                             table.add_row([item.tokenClass.value,
                                             item.lexeme,

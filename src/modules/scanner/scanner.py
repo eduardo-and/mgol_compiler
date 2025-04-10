@@ -13,6 +13,7 @@ class Scanner:
     languageDict = [range(48, 59),range(97 - 123),range(65,91),44,59,58,33,63,39,34,95,32, 10, 9,40,41,123,125,43,45,47,42,62,60,61,92]
     
     errosByState = {
+        TokenClass.ERROR: "Erro1 - Caractere Invalido",
         TokenClass.ID: "Erro2 - Identificador Invalido",
         TokenClass.LIT: "Erro3 - Literal Invalido",
         TokenClass.NUM: "Erro4 - Numero Invalido",
@@ -106,8 +107,8 @@ class Scanner:
             token.lexeme = lexeme
             token = self.__setType(token)
             token = self.__reservedWordVerify(token)
-            token, idHasError = self.__iDTreatment(token)
-            error = self.__verifyError(token, previousTokenClass if not idHasError else TokenClass.ID)
+            token = self.__iDTreatment(token)
+            error = self.__verifyError(token,previousTokenClass)
             return token, error
         
     def __nextState(self, char, currentState):
@@ -124,15 +125,10 @@ class Scanner:
         )
         
     def __iDTreatment(self, token: Token):
-        hasError = False
         if token.tokenClass == TokenClass.ID:
-            if "-" in token.lexeme:
-                token.tokenClass = TokenClass.ERROR
-                token.type = None
-                hasError = True
             if self.__findTokenByLexeme(token.lexeme) == None:
                 self.symbolsList.append(token)
-        return token, hasError
+        return token
     
     def __verifyError(self, token: Token, previousTokenClass: TokenClass = None):
         errorMessage = None
