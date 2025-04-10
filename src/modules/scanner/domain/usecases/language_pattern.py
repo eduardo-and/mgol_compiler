@@ -35,7 +35,7 @@ class LanguagePattern:
         (8,8):[range(48,58)],
         (9,10):[range(48,58)],
         (10,10):[range(48,58)],
-        (11,11):[45,95,range(48,58),range(97,123), range(65,91)],
+        (11,11):[95,range(48,58),range(97,123), range(65,91)],
         (12,12):languageDictToTransition12, ##anything - " 
         (12,13):[34],
         (14,14):languageDictToTransition14, ##anything - } 

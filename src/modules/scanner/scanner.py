@@ -82,7 +82,10 @@ class Scanner:
                             previousTokenClass = TokenClass.COMMENT
                         else:
                             previousTokenClass = currentState.resultingClass
-                        return self.__returnToken(lexeme, TokenClass.ERROR, token, previousTokenClass)
+                        return self.__returnToken(lexeme, TokenClass.ERROR, token,previousTokenClass)
+                    if(lexeme == "faca"):
+                        lexeme += chr(char)
+                        continue
                     return self.__returnToken(lexeme, currentState.resultingClass, token)
                 else: 
                     lexeme += chr(char)
