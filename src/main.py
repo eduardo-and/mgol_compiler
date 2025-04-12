@@ -50,6 +50,7 @@ def main():
                     while True:
                         token, error = scanRunner.runSingle()
                         if token.tokenClass == TokenClass.EOF or _key == "q":
+                            print(token)
                             break
                         if error:
                             print(token)
