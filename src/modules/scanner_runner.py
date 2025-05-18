@@ -21,6 +21,8 @@ class ScannerRunner:
 
     def runSingle(self)->tuple[Token, Error]:
         token, error = self.scanner.scan()
+        if token.tokenClass == TokenClass.COMMENT:
+            token, error = self.scanner.scan()
         if token.tokenClass == TokenClass.EOF:
             self.scanner.restart()
 
@@ -33,6 +35,9 @@ class ScannerRunner:
 
         while True:
             token, error = self.scanner.scan()
+            if token.tokenClass == TokenClass.COMMENT:
+                token, error = self.scanner.scan()
+            
             tokensList.append(token)
             if error: tokensList.append(error)
             if token.tokenClass == TokenClass.EOF:

@@ -1,5 +1,5 @@
 from io import TextIOWrapper
-
+import copy
 from core.models.token import Token
 from core.models.error import Error
 from core.models.enums.token_class import TokenClass
@@ -75,12 +75,14 @@ class Scanner:
                 
                 tmpNextState = self.__nextState(char, currentState)
                 if tmpNextState == None or char == 10:
-                    if currentState.resultingClass == TokenClass.ERROR or not self.__isOnLanguageDict(char):
+                    if currentState.resultingClass == TokenClass.ERROR :
                         lexeme += chr(char)
                         if currentState.id == 12:
                             previousTokenClass = TokenClass.LIT
                         elif currentState.id == 14:
                             previousTokenClass = TokenClass.COMMENT
+                        elif not self.__isOnLanguageDict(char):
+                            previousTokenClass = TokenClass.ERROR
                         else:
                             previousTokenClass = currentState.resultingClass
                         return self.__returnToken(lexeme, TokenClass.ERROR, token,previousTokenClass)
@@ -156,7 +158,7 @@ class Scanner:
             if reservedToken:
                 col = token.col
                 line = token.line 
-                token = reservedToken
+                token = copy.deepcopy(reservedToken)
                 token.col = col
                 token.line = line
         return token
