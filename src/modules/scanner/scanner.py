@@ -3,7 +3,7 @@ import copy
 from core.models.token import Token
 from core.models.error import Error
 from core.models.enums.token_class import TokenClass
-from modules.scanner.domain.usecases.language_pattern import LanguagePattern
+from modules.scanner.domain.language_pattern import LanguagePattern
 from modules.scanner.models.state import StateUnity
 
 class Scanner:
