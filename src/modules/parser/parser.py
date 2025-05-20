@@ -35,8 +35,8 @@ class Parser:
                 break
         if action.index == None:
             raise self.__errorHandler(token=self.__lastToken)
-        print(f"GoTo {terminal.value} : {action.index}\n {self.__stack}")
         self.__stack.append(action.index)
+        print(f"GoTo {terminal.value} : {action.index}\n {self.__stack}")
 
     def __reduce(self, action: Action):
         grammarRule: GrammarReference = next(
