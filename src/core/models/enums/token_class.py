@@ -1,8 +1,11 @@
 from enum import Enum
 
+
 class TokenClass(Enum):
 
     NUM = "NUM"
+    INT = "INT"
+    REAL = "REAl"
     LIT = "LIT"
     ID = "ID"
     COMMENT = "COMMENT"
@@ -30,3 +33,5 @@ class TokenClass(Enum):
     inteiro = "inteiro"
     literal = "literal"
     real = "real"
+
+

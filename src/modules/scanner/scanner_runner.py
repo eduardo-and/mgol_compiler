@@ -11,7 +11,7 @@ from modules.scanner.scanner import Scanner
 
 class ScannerRunner:
     def __init__(self, path):   
-        baseDir = Path(__file__).resolve().parent.parent.parent
+        baseDir = Path(__file__).resolve().parent.parent.parent.parent
         newPath = f"{baseDir}/.tmp/{path.split('/')[-1]}"
         os.makedirs(".tmp", exist_ok=True)
         shutil.copy(f"{baseDir}/{path}", newPath)
@@ -19,14 +19,16 @@ class ScannerRunner:
         _sourceCode.write("\n\x00")
         self.scanner = Scanner(file=_sourceCode)
 
-    def runSingle(self)->tuple[Token, Error]:
+    def getToken(self)->Token:
         token, error = self.scanner.scan()
+        if token.tokenClass == TokenClass.ERROR:
+            print(error)
         if token.tokenClass == TokenClass.COMMENT:
-            token, error = self.scanner.scan()
+            token
         if token.tokenClass == TokenClass.EOF:
             self.scanner.restart()
 
-        return token, error
+        return token
     
     def runAll(self)->list[Token, Error]:
         tokensList: list[Token, Error] = []

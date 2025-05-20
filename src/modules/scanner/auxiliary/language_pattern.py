@@ -1,5 +1,5 @@
 from core.models.enums.token_class import TokenClass
-from modules.scanner.models.state import StateUnity
+from modules.scanner.models.state_unity import StateUnity
 
 class LanguagePattern:
     languageDict = [range(48, 59),range(97,123),range(65,91),44,59,58,33,63,39,34,95,32, 10, 9,40,41,123,125,43,45,47,42,62,60,61,92]

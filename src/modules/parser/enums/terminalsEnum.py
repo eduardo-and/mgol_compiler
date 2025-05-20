@@ -1,0 +1,21 @@
+from enum import Enum
+
+class Terminal(Enum):
+    P = "P"
+    V = "V"
+    LV = "LV"
+    D = "D"
+    L = "L"
+    A = "A"
+    ES = "ES"
+    ARG = "ARG"
+    CMD = "CMD"
+    LD = "LD"
+    OPRD = "OPRD"
+    COND = "COND"
+    CAB = "CAB"
+    EXP_R = "EXP_R"
+    CP = "CP"
+    R = "R"
+    CP_R = "CP_R"
+    TIPO = "TIPO"

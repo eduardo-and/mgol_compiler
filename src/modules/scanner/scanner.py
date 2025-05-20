@@ -3,23 +3,52 @@ import copy
 from core.models.token import Token
 from core.models.error import Error
 from core.models.enums.token_class import TokenClass
-from modules.scanner.domain.language_pattern import LanguagePattern
-from modules.scanner.models.state import StateUnity
+
+from modules.scanner.auxiliary.language_pattern import LanguagePattern
+from modules.scanner.models.state_unity import StateUnity
+
 
 class Scanner:
     charToIgnore = [32, 10, 9]
     currentLine: int = 0
     currentColumn: int = 0
-    languageDict = [range(48, 59),range(97 - 123),range(65,91),44,59,58,33,63,39,34,95,32, 10, 9,40,41,123,125,43,45,47,42,62,60,61,92]
-    
+    languageDict = [
+        range(48, 59),
+        range(97 - 123),
+        range(65, 91),
+        44,
+        59,
+        58,
+        33,
+        63,
+        39,
+        34,
+        95,
+        32,
+        10,
+        9,
+        40,
+        41,
+        123,
+        125,
+        43,
+        45,
+        47,
+        42,
+        62,
+        60,
+        61,
+        92,
+    ]
+
     errosByState = {
         TokenClass.ERROR: "Erro1 - Caractere Invalido",
         TokenClass.ID: "Erro2 - Identificador Invalido",
         TokenClass.LIT: "Erro3 - Literal Invalido",
         TokenClass.NUM: "Erro4 - Numero Invalido",
-        TokenClass.COMMENT: "Erro5 - Comentario Invalido"
+        TokenClass.COMMENT: "Erro5 - Comentario Invalido",
     }
-    
+
     symbolsList = [
         Token(tokenClass=TokenClass.inicio, type="inicio", lexeme="inicio"),
         Token(tokenClass=TokenClass.varinicio, type="varinicio", lexeme="varinicio"),
@@ -36,20 +65,20 @@ class Scanner:
         Token(tokenClass=TokenClass.literal, type="literal", lexeme="literal"),
         Token(tokenClass=TokenClass.real, type="real", lexeme="real"),
     ]
-    
+
     def __init__(self, file: TextIOWrapper):
         self.file = file
         self.initialState = LanguagePattern()
 
-    def scan(self)->Token:
+    def scan(self) -> Token:
         currentState = self.initialState
         previousTokenClass = None
         token = None
         lexeme = ""
         isStart = True
-        
+
         self.file.seek(0)
-        
+
         for lineIndex, line in enumerate(self.file):
             if isStart:
                 if lineIndex < self.currentLine:
@@ -57,25 +86,29 @@ class Scanner:
             else:
                 self.currentColumn = 0
                 self.currentLine = lineIndex
-        
+
             for columnIndex, char in enumerate(line):
                 if isStart:
-                    self.currentColumn = self.currentColumn - 1 if len(line) == self.currentColumn else self.currentColumn
+                    self.currentColumn = (
+                        self.currentColumn - 1
+                        if len(line) == self.currentColumn
+                        else self.currentColumn
+                    )
                     if columnIndex < self.currentColumn:
                         continue
                 isStart = False
                 self.currentColumn = columnIndex
-                
+
                 char = ord(char)
                 if char in self.charToIgnore and lexeme == "":
                     continue
-                
+
                 if token == None:
                     token = self.__initToken(self.currentColumn, self.currentLine)
-                
+
                 tmpNextState = self.__nextState(char, currentState)
                 if tmpNextState == None or char == 10:
-                    if currentState.resultingClass == TokenClass.ERROR :
+                    if currentState.resultingClass == TokenClass.ERROR:
                         lexeme += chr(char)
                         if currentState.id == 12:
                             previousTokenClass = TokenClass.LIT
@@ -85,79 +118,100 @@ class Scanner:
                             previousTokenClass = TokenClass.ERROR
                         else:
                             previousTokenClass = currentState.resultingClass
-                        return self.__returnToken(lexeme, TokenClass.ERROR, token,previousTokenClass)
-                    if(lexeme == "faca"):
+                        return self.__returnToken(
+                            lexeme, TokenClass.ERROR, token, previousTokenClass
+                        )
+                    if lexeme == "faca":
                         lexeme += chr(char)
                         continue
-                    return self.__returnToken(lexeme, currentState.resultingClass, token)
-                else: 
+                    return self.__returnToken(
+                        lexeme, currentState.resultingClass, token
+                    )
+                else:
                     lexeme += chr(char)
                     if char == 0:
                         lexeme += "EOF"
-                        return self.__returnToken(lexeme, tmpNextState.resultingClass, token)
+                        return self.__returnToken(
+                            lexeme, tmpNextState.resultingClass, token
+                        )
                     currentState = tmpNextState
-        
+
         raise Exception("Falha no Scanner: Token indefinido")
-    
-    def restart(self)->None:
+
+    def restart(self) -> None:
         self.currentLine = 0
         self.currentColumn = 0
-        return 
-    
-    def __returnToken(self, lexeme: str, resultingClass: TokenClass, token: Token, previousTokenClass: TokenClass = None)->Token:
-            token.tokenClass = resultingClass
-            token.lexeme = lexeme
-            token = self.__setType(token)
-            token = self.__reservedWordVerify(token)
-            token = self.__iDTreatment(token)
-            error = self.__verifyError(token,previousTokenClass)
-            return token, error
-        
+        return
+
+    def __returnToken(
+        self,
+        lexeme: str,
+        resultingClass: TokenClass,
+        token: Token,
+        previousTokenClass: TokenClass = None,
+    ) -> Token:
+        token.tokenClass = resultingClass
+        token.lexeme = lexeme
+        token = self.__setType(token)
+        token = self.__reservedWordVerify(token)
+        token = self.__iDTreatment(token)
+        error = self.__verifyError(token, previousTokenClass)
+        # EXTRAIR EM METODO
+        if token.tokenClass == TokenClass.literal:
+            token.tokenClass = TokenClass.LIT
+        if token.tokenClass == TokenClass.inteiro:
+            token.tokenClass = TokenClass.INT
+        if token.tokenClass == TokenClass.real:
+            token.tokenClass = TokenClass.REAL
+        return token, error
+
     def __nextState(self, char, currentState):
         _nextState = currentState.doTransition(char)
         if _nextState:
             return _nextState
         return None
-    
+
     def __initToken(self, column, line):
-        return Token(
-            tokenClass=TokenClass.ERROR,
-            line=line,
-            col=column
-        )
-        
+        return Token(tokenClass=TokenClass.ERROR, line=line, col=column)
+
     def __iDTreatment(self, token: Token):
         if token.tokenClass == TokenClass.ID:
             if self.__findTokenByLexeme(token.lexeme) == None:
                 self.symbolsList.append(token)
         return token
-    
+
     def __verifyError(self, token: Token, previousTokenClass: TokenClass = None):
         errorMessage = None
-        if token.tokenClass == TokenClass.ERROR:            
+        if token.tokenClass == TokenClass.ERROR:
             if previousTokenClass and self.errosByState.get(previousTokenClass):
                 errorMessage = self.errosByState[previousTokenClass]
             else:
                 errorMessage = "Erro1 - Caractere Invalido"
             self.currentColumn += 1
-        return Error(message=errorMessage, line=token.line, col=token.col) if errorMessage != None else None
-    
+        return (
+            Error(message=errorMessage, line=token.line, col=token.col)
+            if errorMessage != None
+            else None
+        )
+
     def __setType(self, token: Token):
         if token.tokenClass == TokenClass.NUM:
             if token.lexeme.find(".") != -1:
                 token.type = "real"
+                token.tokenClass = TokenClass.REAL
             else:
                 token.type = "inteiro"
+                token.tokenClass = TokenClass.INT
         elif token.tokenClass == TokenClass.LIT:
-            token.type = "literal" 
+            token.type = "literal"
         return token
-    
+
     def __reservedWordVerify(self, token: Token):
         if token.tokenClass == TokenClass.ID:
             reservedToken = self.__findTokenByLexeme(token.lexeme)
             if reservedToken:
                 col = token.col
-                line = token.line 
+                line = token.line
                 token = copy.deepcopy(reservedToken)
                 token.col = col
                 token.line = line
@@ -170,8 +224,8 @@ class Scanner:
                     return True
             if dict == char:
                 return True
-                
-    def __findTokenByLexeme(self, lexeme: str):
-        return next((token for token in self.symbolsList if token.lexeme  == lexeme), None)
 
-    
+    def __findTokenByLexeme(self, lexeme: str):
+        return next(
+            (token for token in self.symbolsList if token.lexeme == lexeme), None
+        )
