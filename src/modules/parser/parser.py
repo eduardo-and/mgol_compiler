@@ -1,8 +1,8 @@
 from core.models.enums.token_class import TokenClass
 from core.models.token import Token
 from modules.parser.auxiliary.parser_definitions import ParserDefinitions
-from modules.parser.enums.actionTypeEnum import ActionType
-from modules.parser.enums.terminalsEnum import Terminal
+from modules.parser.enums.action_type_num import ActionType
+from modules.parser.enums.non_terminals_enum import NonTerminal
 from modules.parser.models.action import Action
 from modules.parser.models.grammar_reference import GrammarReference
 from modules.parser.models.state import State
@@ -26,7 +26,7 @@ class Parser:
     def __errorHandler(self, token):
         return token
 
-    def __goTo(self, terminal: Terminal):
+    def __goTo(self, terminal: NonTerminal):
         states: list[State] = self.__parseTable[self.__stack[-1]]
 
         for state in states:
@@ -44,7 +44,7 @@ class Parser:
         )
         print(f"Drop {grammarRule.quantity} elements")
         [self.__stack.pop() for _ in range(grammarRule.quantity)]
-        self.__goTo(grammarRule.terminal)
+        self.__goTo(grammarRule.nonTerminal)
         return
 
     def __shift(self, action: Action):

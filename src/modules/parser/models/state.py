@@ -1,6 +1,6 @@
 from core.models.enums.token_class import TokenClass
 from core.models.token import Token
-from modules.parser.enums.terminalsEnum import Terminal
+from modules.parser.enums.non_terminals_enum import NonTerminal
 from modules.parser.models.action import Action
 
 
@@ -22,7 +22,7 @@ class State:
 
     def __getTerminal(self, lexeme):
         try:
-            return Terminal[lexeme]
+            return NonTerminal[lexeme]
         except:
             return None
 

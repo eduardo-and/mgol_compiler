@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Terminal(Enum):
+class NonTerminal(Enum):
     P = "P"
     V = "V"
     LV = "LV"

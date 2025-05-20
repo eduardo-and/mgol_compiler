@@ -1,4 +1,4 @@
-from modules.parser.enums.actionTypeEnum import ActionType
+from modules.parser.enums.action_type_num import ActionType
 
 
 class Action:

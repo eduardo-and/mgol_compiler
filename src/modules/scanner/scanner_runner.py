@@ -23,8 +23,9 @@ class ScannerRunner:
         token, error = self.scanner.scan()
         if token.tokenClass == TokenClass.ERROR:
             print(error)
+            return self.getToken()
         if token.tokenClass == TokenClass.COMMENT:
-            token
+            return self.getToken()
         if token.tokenClass == TokenClass.EOF:
             self.scanner.restart()
 

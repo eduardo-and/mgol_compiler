@@ -1,8 +1,8 @@
-from modules.parser.enums.terminalsEnum import Terminal
+from modules.parser.enums.non_terminals_enum import NonTerminal
 
 
 class GrammarReference:
     def __init__(self, rule: int, terminal: str, quantity: int):
         self.rule = int(rule)
-        self.terminal = Terminal[terminal]
+        self.nonTerminal = NonTerminal[terminal]
         self.quantity = int(quantity)
