@@ -35,7 +35,7 @@ class Parser:
                 break
         if action.index == None:
             raise self.__errorHandler(token=self.__lastToken)
-        print(f"GoTo {terminal.value} : {action.index}")
+        print(f"GoTo {terminal.value} : {action.index}\n {self.__stack}")
         self.__stack.append(action.index)
 
     def __reduce(self, action: Action):
@@ -71,10 +71,10 @@ class Parser:
 
             if action.actionType == ActionType.SHIFT:
                 self.__shift(action)
-                print(f"Token: {token.tokenClass.value} Shift: {action.index}")
+                print(f"Token: {token.tokenClass.value} Shift: {action.index} \n {self.__stack}")
                 continue
             elif action.actionType == ActionType.REDUCE:
-                print(f"Token: {token.tokenClass.value} Reduce: {action.index}")
+                print(f"Token: {token.tokenClass.value} Reduce: {action.index} \n {self.__stack}")
                 self.__reduce(action=action)
                 self.__isReduced = True
             elif action.actionType == ActionType.ACCEPT:
