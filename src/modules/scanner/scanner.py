@@ -61,9 +61,9 @@ class Scanner:
         Token(tokenClass=TokenClass.facaate, type="faca-ate", lexeme="faca-ate"),
         Token(tokenClass=TokenClass.fimfaca, type="fimfaca", lexeme="fimfaca"),
         Token(tokenClass=TokenClass.fim, type="fim", lexeme="fim"),
-        Token(tokenClass=TokenClass.inteiro, type="inteiro", lexeme="inteiro"),
+        Token(tokenClass=TokenClass.INT, type="inteiro", lexeme="inteiro"),
+        Token(tokenClass=TokenClass.REAL, type="real", lexeme="real"),
         Token(tokenClass=TokenClass.literal, type="literal", lexeme="literal"),
-        Token(tokenClass=TokenClass.real, type="real", lexeme="real"),
     ]
 
     def __init__(self, file: TextIOWrapper):
@@ -156,13 +156,11 @@ class Scanner:
         token = self.__reservedWordVerify(token)
         token = self.__iDTreatment(token)
         error = self.__verifyError(token, previousTokenClass)
+       
         # EXTRAIR EM METODO
         if token.tokenClass == TokenClass.literal:
             token.tokenClass = TokenClass.LIT
-        if token.tokenClass == TokenClass.inteiro:
-            token.tokenClass = TokenClass.INT
-        if token.tokenClass == TokenClass.real:
-            token.tokenClass = TokenClass.REAL
+     
         return token, error
 
     def __nextState(self, char, currentState):
@@ -198,10 +196,9 @@ class Scanner:
         if token.tokenClass == TokenClass.NUM:
             if token.lexeme.find(".") != -1:
                 token.type = "real"
-                token.tokenClass = TokenClass.REAL
             else:
                 token.type = "inteiro"
-                token.tokenClass = TokenClass.INT
+
         elif token.tokenClass == TokenClass.LIT:
             token.type = "literal"
         return token

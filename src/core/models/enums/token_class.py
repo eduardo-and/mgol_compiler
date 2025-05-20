@@ -29,9 +29,8 @@ class TokenClass(Enum):
     fimse = "fimse"
     facaate = "faca-ate"
     fimfaca = "fimfaca"
-    fim = "fim"
-    inteiro = "inteiro"
+    fim = "fim"   
     literal = "literal"
-    real = "real"
+  
 
 
