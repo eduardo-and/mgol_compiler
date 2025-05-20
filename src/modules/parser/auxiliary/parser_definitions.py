@@ -58,6 +58,6 @@ class ParserDefinitions:
             return ActionType.SHIFT, int(act.split("S")[1])
         elif act[0] == "R":
             return ActionType.REDUCE, int(act.split("R")[1])
-        elif act[0] == "ACC":
+        elif act == "ACC":
             return ActionType.ACCEPT, None
         return ActionType.ERROR, None
