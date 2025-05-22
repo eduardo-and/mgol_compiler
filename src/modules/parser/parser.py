@@ -12,20 +12,26 @@ class Parser:
     __lastToken = None
     __isReduced = False
 
-    def __init__(self, path: str, errorMode: int):
+    def __init__(self, path: str):
         self.__scanner = ScannerRunner(path)
         __parserDefinitions = ParserDefinitions()
         self.__parseTable = __parserDefinitions.parsingTable
         self.__grammarList = __parserDefinitions.grammarList
         self.__stack = [0]
-        self.__errorMode = errorMode
 
     def run(self):
         self.__slr1()
 
+    def __panicMode(self, token):
+        # Mantem a leitura de tokens até que encontre um token válido
+        print("ERRO: ")
+    
+    def __statementMode(self, token):
+        # No estado X, procura na tabela de ações o primeiro reduce que encontrar, então faz a correção
+        print("ERRO: ")
+
     def __errorHandler(self, token):
-        print(self.__errorMode)
-        return token
+        self.__panicMode(token)
 
     def __goTo(self, terminal: NonTerminal):
         states: list[State] = self.__parseTable[self.__stack[-1]]
@@ -76,9 +82,10 @@ class Parser:
                 self.__reduce(action=action)
                 self.__isReduced = True
             elif action.actionType == ActionType.ACCEPT:
+                print("ACEITO: P' → P")
                 return True
             else:
-                return self.__errorHandler(token if token != None else self.__lastToken)
+                self.__errorHandler(token if token != None else self.__lastToken)
 
     def __getToken(self):
         if self.__isReduced:
