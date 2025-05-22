@@ -2,10 +2,10 @@ from core.models.enums.token_class import TokenClass
 from modules.scanner.models.state_unity import StateUnity
 
 class LanguagePattern:
-    languageDict = [range(48, 59),range(97,123),range(65,91),44,59,58,33,63,39,34,95,32, 10, 9,40,41,123,125,43,45,47,42,62,60,61,92]
-    languageDictToTransition12 = [range(48, 59),range(97,123),range(65,91),44,59,58,33,63,39,95,32, 10, 9,40,41,123,125,43,45,47,42,62,60,61,92]
-    languageDictToTransition14 = [range(48, 59),range(97,123),range(65,91),44,59,58,33,63,39,34,95,32, 10, 9,40,41,123,43,45,47,42,62,60,61,92]
-    
+    languageDict = [9,10,32,33,34,range(39,64),range(65,94),95,range(97,124),125]
+    languageDictToTransition12 = [9,10,32,33,range(39,64),range(65,94),95,range(97,124),125]
+    languageDictToTransition14 = [9,10,32,33,34,range(39,64),range(65,94),95,range(97,124)]
+
     statesQuantity: int = 27
     transitions = {
         (0,1):[range(48,58)],

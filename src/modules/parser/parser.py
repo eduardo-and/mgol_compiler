@@ -1,5 +1,4 @@
 from core.models.enums.token_class import TokenClass
-from core.models.token import Token
 from modules.parser.auxiliary.parser_definitions import ParserDefinitions
 from modules.parser.enums.action_type_num import ActionType
 from modules.parser.enums.non_terminals_enum import NonTerminal
@@ -13,17 +12,19 @@ class Parser:
     __lastToken = None
     __isReduced = False
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, errorMode: int):
         self.__scanner = ScannerRunner(path)
         __parserDefinitions = ParserDefinitions()
         self.__parseTable = __parserDefinitions.parsingTable
         self.__grammarList = __parserDefinitions.grammarList
         self.__stack = [0]
+        self.__errorMode = errorMode
 
     def run(self):
         self.__slr1()
 
     def __errorHandler(self, token):
+        print(self.__errorMode)
         return token
 
     def __goTo(self, terminal: NonTerminal):
@@ -35,14 +36,13 @@ class Parser:
                 break
         if action.index == None:
             raise self.__errorHandler(token=self.__lastToken)
-        print(f"Pilha: {self.__stack} GoTo({terminal.value}, {self.__stack[-1]}): {action.index}")
         self.__stack.append(action.index)
 
     def __reduce(self, action: Action):
         grammarRule: GrammarReference = next(
             (line for line in self.__grammarList if line.rule == action.index), None
         )
-        print(f"Drop {grammarRule.quantity} elements")
+        print(grammarRule)
         [self.__stack.pop() for _ in range(grammarRule.quantity)]
         self.__goTo(grammarRule.nonTerminal)
         return
@@ -70,15 +70,12 @@ class Parser:
             )
 
             if action.actionType == ActionType.SHIFT:
-                print(f"Pilha: {self.__stack} Token: {token.tokenClass.value} S{action.index}")
                 self.__shift(action)
                 continue
             elif action.actionType == ActionType.REDUCE:
-                print(f"Pilha: {self.__stack} Token: {token.tokenClass.value} R{action.index}")
                 self.__reduce(action=action)
                 self.__isReduced = True
             elif action.actionType == ActionType.ACCEPT:
-                print(f"Pilha: {self.__stack} Token: {token.tokenClass.value} ACC")
                 return True
             else:
                 return self.__errorHandler(token if token != None else self.__lastToken)

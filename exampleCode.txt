@@ -18,7 +18,7 @@ inicio
     fimse
     B<-B+1.5;
     B<-B-2;
-    B<-B+3;
+    B<-B+3.0e1;
     D<-B;
     C<-5.0;
     faca-ate (B>5)
