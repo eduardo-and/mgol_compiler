@@ -44,8 +44,9 @@ class Parser:
             raise e
 
     def __tokenInference(self, token):
-        suggestedToken, grammarRef = self.__findSuggestedToken(token)
-        if suggestedToken is not None:
+        suggestion = self.__findSuggestedToken(token)
+        if suggestion is not None:
+            suggestedToken, grammarRef = suggestion
             print(
                 f"\033[32mToken sugerido:\033[0m {suggestedToken.tokenClass}, da gramática: {grammarRef}"
             )
@@ -59,10 +60,12 @@ class Parser:
 
     def __findSuggestedToken(self, token: Token):
         token_suggestion_getter = TokenSuggestionGetter()
-        self.__lastLine.remove(self.__currentToken.tokenClass)
-        return token_suggestion_getter.getSuggestion(
+        suggestion = token_suggestion_getter.getSuggestion(
             token=token, grammarLine=self.__lastLine, grammarList=self.__grammarList
         )
+        if suggestion != None:
+            self.__lastLine.remove(self.__currentToken.tokenClass)
+        return suggestion
 
     def __errorHandler(self, token: Token):
         error: Error = Error(
