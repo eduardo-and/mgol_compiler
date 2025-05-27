@@ -19,15 +19,14 @@ class ScannerRunner:
         _sourceCode.write("\n\x00")
         self.scanner = Scanner(file=_sourceCode)
 
-    def getToken(self)->Token:
+    def getToken(self)->Token:        
         token, error = self.scanner.scan()
         if token.tokenClass == TokenClass.ERROR:
             print(error)
+            print("Obtendo próximo token...")
             return self.getToken()
         if token.tokenClass == TokenClass.COMMENT:
             return self.getToken()
-        if token.tokenClass == TokenClass.EOF:
-            self.scanner.restart()
 
         return token
     

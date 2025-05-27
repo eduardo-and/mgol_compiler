@@ -1,5 +1,6 @@
 from io import TextIOWrapper
 import copy
+from core.models.enums.failure_type import FailureType
 from core.models.token import Token
 from core.models.error import Error
 from core.models.enums.token_class import TokenClass
@@ -9,10 +10,11 @@ from modules.scanner.models.state_unity import StateUnity
 
 
 class Scanner:
-    charToIgnore = [32, 10, 9]
-    currentLine: int = 0
-    currentColumn: int = 0
-    languageDict = [
+    __charToIgnore = [32, 10, 9]
+    __currentLine: int = 0
+    __currentColumn: int = 0
+    __isFileFinished: bool = False
+    __languageDict = [
         range(48, 59),
         range(97 - 123),
         range(65, 91),
@@ -41,7 +43,7 @@ class Scanner:
         92,
     ]
 
-    errosByState = {
+    __errosByState = {
         TokenClass.ERROR: "Erro1 - Caractere Invalido",
         TokenClass.ID: "Erro2 - Identificador Invalido",
         TokenClass.LIT: "Erro3 - Literal Invalido",
@@ -76,35 +78,43 @@ class Scanner:
         token = None
         lexeme = ""
         isStart = True
-
+        
+        if self.__isFileFinished:
+            raise Exception(Error(
+                failure=FailureType.ScannerFailure,
+                message="Scanner has reached the end of the file",
+                line=self.__currentLine,
+                col=self.__currentColumn
+            ))
+            
         self.file.seek(0)
 
         for lineIndex, line in enumerate(self.file):
             if isStart:
-                if lineIndex < self.currentLine:
+                if lineIndex < self.__currentLine:
                     continue
             else:
-                self.currentColumn = 0
-                self.currentLine = lineIndex
+                self.__currentColumn = 0
+                self.__currentLine = lineIndex
 
             for columnIndex, char in enumerate(line):
                 if isStart:
-                    self.currentColumn = (
-                        self.currentColumn - 1
-                        if len(line) == self.currentColumn
-                        else self.currentColumn
+                    self.__currentColumn = (
+                        self.__currentColumn - 1
+                        if len(line) == self.__currentColumn
+                        else self.__currentColumn
                     )
-                    if columnIndex < self.currentColumn:
+                    if columnIndex < self.__currentColumn:
                         continue
                 isStart = False
-                self.currentColumn = columnIndex
+                self.__currentColumn = columnIndex
 
                 char = ord(char)
-                if char in self.charToIgnore and lexeme == "":
+                if char in self.__charToIgnore and lexeme == "":
                     continue
 
                 if token == None:
-                    token = self.__initToken(self.currentColumn, self.currentLine)
+                    token = self.__initToken(self.__currentColumn, self.__currentLine)
 
                 tmpNextState = self.__nextState(char, currentState)
                 if tmpNextState == None or char == 10:
@@ -139,8 +149,8 @@ class Scanner:
         raise Exception("Falha no Scanner: Token indefinido")
 
     def restart(self) -> None:
-        self.currentLine = 0
-        self.currentColumn = 0
+        self.__currentLine = 0
+        self.__currentColumn = 0
         return
 
     def __returnToken(
@@ -156,7 +166,8 @@ class Scanner:
         token = self.__reservedWordVerify(token)
         token = self.__iDTreatment(token)
         error = self.__verifyError(token, previousTokenClass)
-       
+        self.__setFileFinished(token)
+
         # EXTRAIR EM METODO
         if token.tokenClass == TokenClass.literal:
             token.tokenClass = TokenClass.LIT
@@ -170,8 +181,12 @@ class Scanner:
         return None
 
     def __initToken(self, column, line):
-        return Token(tokenClass=TokenClass.ERROR, line=line, col=column)
+        return Token(tokenClass=TokenClass.ERROR, line=line, column=column)
 
+    def __setFileFinished(self, token: Token):
+        if token.tokenClass == TokenClass.EOF:
+            self.__isFileFinished = True
+        return token
     def __iDTreatment(self, token: Token):
         if token.tokenClass == TokenClass.ID:
             if self.__findTokenByLexeme(token.lexeme) == None:
@@ -181,13 +196,13 @@ class Scanner:
     def __verifyError(self, token: Token, previousTokenClass: TokenClass = None):
         errorMessage = None
         if token.tokenClass == TokenClass.ERROR:
-            if previousTokenClass and self.errosByState.get(previousTokenClass):
-                errorMessage = self.errosByState[previousTokenClass]
+            if previousTokenClass and self.__errosByState.get(previousTokenClass):
+                errorMessage = self.__errosByState[previousTokenClass]
             else:
                 errorMessage = "Erro1 - Caractere Invalido"
-            self.currentColumn += 1
+            self.__currentColumn += 1
         return (
-            Error(message=errorMessage, line=token.line, col=token.col)
+            Error(failure=FailureType.ScannerFailure, message=errorMessage, line=token.line, col=token.column)
             if errorMessage != None
             else None
         )
@@ -207,15 +222,15 @@ class Scanner:
         if token.tokenClass == TokenClass.ID:
             reservedToken = self.__findTokenByLexeme(token.lexeme)
             if reservedToken:
-                col = token.col
+                col = token.column
                 line = token.line
                 token = copy.deepcopy(reservedToken)
-                token.col = col
+                token.column = col
                 token.line = line
         return token
 
     def __isOnLanguageDict(self, char: int):
-        for dict in self.languageDict:
+        for dict in self.__languageDict:
             if isinstance(dict, range):
                 if char in dict:
                     return True

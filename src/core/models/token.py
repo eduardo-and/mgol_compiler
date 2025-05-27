@@ -8,12 +8,12 @@ class Token:
                  lexeme: str = "",
                  type: str = None,
                  line: int = None,
-                 col: int = None):
+                 column: int = None):
         self.tokenClass = tokenClass
         self.lexeme = lexeme
         self.type = type
         self.line = line
-        self.col = col
+        self.column = column
 
     def __str__(self):
-        return f"classe: {self.tokenClass.value}, lexema: {self.lexeme}, tipo: {self.type}, linha: {self.line}, col: {self.col}"
+        return f"classe: {self.tokenClass.value}, lexema: {self.lexeme}, tipo: {self.type}, linha: {self.line}, col: {self.column}"

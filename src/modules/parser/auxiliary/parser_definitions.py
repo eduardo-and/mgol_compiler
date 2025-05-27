@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from modules.parser.enums.action_type_num import ActionType
+from modules.parser.enums.action_type_num_enum import ActionType
 from modules.parser.models.action import Action
 from modules.parser.models.grammar_reference import GrammarReference
 from modules.parser.enums.non_terminals_enum import NonTerminal
