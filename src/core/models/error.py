@@ -11,8 +11,8 @@ class Error:
                  col: int = None):
         self.failure = failure
         self.message = message
-        self.line = line
-        self.col = col
+        self.line = line+1
+        self.col = col+1
 
     def __str__(self):
         return f"\033[31m{self.failure.value}:\033[0m {self.message}, linha: {self.line}, col: {self.col}"
