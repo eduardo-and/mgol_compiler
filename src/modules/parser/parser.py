@@ -42,7 +42,7 @@ class Parser:
             raise e
 
     def __tokenInference(self, token):
-        suggestion = self.__findSuggestedToken()
+        suggestion = self.__findSuggestedToken(token)
         if suggestion is not None:
             print(
                 f"\033[32mToken sugerido:\033[0m {suggestion.tokenClass.value}"
@@ -57,10 +57,10 @@ class Parser:
         self.__panic = True
         self.__panicMode(token)
 
-    def __findSuggestedToken(self):
+    def __findSuggestedToken(self, token):
         for suggestedToken in TokenClass:
             foundRule = self.__attemptInsertion(suggestedToken)
-            token = Token(tokenClass=suggestedToken)
+            token = Token(tokenClass=suggestedToken, column=token.column+1, line=token.line)
             if foundRule != None: return token
         return None
 
@@ -156,6 +156,7 @@ class Parser:
                 try:
                     self.__errorHandler(token)
                 except Exception as e:
+                    print(e)
                     if token.tokenClass == TokenClass.EOF:
                         print("\033[31mParser chegou ao final do arquivo sem encontrar tokens válidos!\033[0m")
                         return False
