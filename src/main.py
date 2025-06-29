@@ -14,21 +14,7 @@ def main():
 
     args = parser.parse_args()
     parser = Parser(args.path)
-    while True:
-        print("Modo de Execução:")
-        print("1 - Panic Mode")
-        print("2 - Token Inference (Heuristic Error Recovery)")
-
-        _option = input("Digite a opção desejada: ")
-        if _option == "1":
-            parser.run(RunOption.panic)
-            return
-        if _option == "2":
-            parser.run(RunOption.TokenInference)
-            return
-        else:
-            print("Opção inválida!\n")
-
+    parser.run()
     return
 
 if __name__ == "__main__":
