@@ -1,6 +1,6 @@
 inicio
     varinicio
-        A literal;
+        A,G,Z literal;
         B inteiro;
         D inteiro;
         C real;

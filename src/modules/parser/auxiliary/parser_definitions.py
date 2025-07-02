@@ -28,11 +28,8 @@ class ParserDefinitions:
             [writer("\n") for i in range(3)]
             return stack, symbolList
         
+        #! F7 e F8 Não precisam realizar nada, ao menos até o momento
         def f6 (stack:list[Token],writer,symbolList):
-            # tipo = stack[1].attributes["type"]
-            # index = next(i for i,token in enumerate(symbolList) if token.lexeme[0] == params["id"])
-            # symbolList[index] = symbolList[index].type = tipo            
-            # return stack,symbolList
             try:
                 type = next(i for i in stack if(i.tokenClass == TokenClass.INT or 
                                                 i.tokenClass == TokenClass.REAL or
@@ -60,49 +57,7 @@ class ParserDefinitions:
             except Exception as e:
                 raise Exception("Erro ao tentar atribuir o tipo ao ID")
             return stack, symbolList
-            #! Pelo oq eu entendi essa passagem do atributo tipo para a tabela 
-            #! de símbolos vai ser sempre feita no f7, então não precisa fazer nada aqui
         
-        def f7 (stack:list[Token],writer,symbolList):
-            type = next(i for i in stack if(i.tokenClass == TokenClass.INT or 
-                                            i.tokenClass == TokenClass.REAL or
-                                            i.tokenClass == TokenClass.LIT or
-                                            i.tokenClass == TokenClass.REAL or 
-                                            i.tokenClass == TokenClass.LIT)) 
-            tmpSymList = symbolList
-            finalLexeme = ""
-            for token in stack:
-                if(token.tokenClass != TokenClass.ID):
-                    try:
-                        index = next(i for i,listToken in enumerate(tmpSymList) if listToken.lexeme == token.lexeme)
-                        del tmpSymList[index]
-                        finalLexeme+=f'{symbolList[index].lexeme}, '
-                        symbolList[index].type = type.attributes["type"]             
-                    except:
-                        break
-            del finalLexeme[-1] ## Remove the last comma and space
-            del finalLexeme[-1]
-            finalLexeme+=";\n"
-            writer(finalLexeme,1)
-            return stack, symbolList
-        
-        def f8 (stack:list[Token],writer,symbolList):
-            # type = next(i for i in stack if(i.tokenClass == TokenClass.INT or 
-            #                                 i.tokenClass == TokenClass.REAL or
-            #                                 i.tokenClass == TokenClass.LIT or
-            #                                 i.tokenClass == TokenClass.REAL or 
-            #                                 i.tokenClass == TokenClass.LIT)) 
-            # tmpSymList = symbolList
-            # finalLexeme = ""
-            # try:
-            #     index = next(i for i,listToken in enumerate(tmpSymList) if listToken.lexeme == stack[-1].lexeme)
-            #     del tmpSymList[index]
-            #     finalLexeme+=f' {symbolList[index].lexeme};'
-            #     symbolList[index].type = type.attributes["type"]             
-            # except:
-            #     raise Exception("Erro ao tentar atribuir o tipo ao ID")
-            # writer(finalLexeme)
-            return stack, symbolList
         
         def f9_10_11 (stack:list[Token],writer,symbolList):
             if(stack[-1].tokenClass == TokenClass.INT):
@@ -142,8 +97,8 @@ class ParserDefinitions:
             GrammarReference(4, NonTerminal.LV, [NonTerminal.D, NonTerminal.LV]),
             GrammarReference(5, NonTerminal.LV, [TokenClass.varfim, TokenClass.PT_V],f5),
             GrammarReference(6, NonTerminal.D, [NonTerminal.L, NonTerminal.TIPO, TokenClass.PT_V],f6),
-            GrammarReference(7, NonTerminal.L, [TokenClass.ID, TokenClass.VIR, NonTerminal.L],f7),
-            GrammarReference(8, NonTerminal.L, [TokenClass.ID],f8),
+            GrammarReference(7, NonTerminal.L, [TokenClass.ID, TokenClass.VIR, NonTerminal.L]),
+            GrammarReference(8, NonTerminal.L, [TokenClass.ID]),
             GrammarReference(9, NonTerminal.TIPO, [TokenClass.INT],f9_10_11),
             GrammarReference(10, NonTerminal.TIPO, [TokenClass.REAL],f9_10_11),
             GrammarReference(11, NonTerminal.TIPO, [TokenClass.LIT],f9_10_11),
