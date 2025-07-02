@@ -26,6 +26,7 @@ class Parser:
     __finalCodePath = "output/program.c"
     __finalFile = None
     __isNewLine = True
+    __semanticError = False
 
     def __init__(self, path: str):
         self.__scanner = ScannerRunner(path)
@@ -38,9 +39,13 @@ class Parser:
 
     def __closeGeneratedFile(self):
         if self.__finalFile:
-            self.__finalFile.write("\nreturn 0;\n\n}\n")
+            self.__finalFile.write("\n  return 0;\n\n}\n")
             self.__finalFile.close()
-            print(f"Arquivo gerado com sucesso em: {self.__finalCodePath}")
+            if(self.__semanticError):
+                print(f"Arquivo interrompido por erro semântico em: {self.__finalCodePath}")
+            else:
+                print(f"Arquivo gerado com sucesso em: {self.__finalCodePath}")
+
         else:
             print("Erro ao fechar o arquivo gerado.")
     
@@ -49,7 +54,8 @@ class Parser:
             os.remove(self.__finalCodePath)
         os.makedirs(os.path.dirname(self.__finalCodePath), exist_ok=True)
         self.__finalFile= open(self.__finalCodePath, 'w', encoding='utf-8')
-        self.__finalFile.write("#include <stdio.h>\n\n\n")
+        self.__finalFile.write("#include <stdio.h>\n")
+        self.__finalFile.write("typedef char literal[256];\n\n")
         self.__finalFile.write("int main() {\n")
     
     def run(self):
@@ -136,7 +142,7 @@ class Parser:
             return
         self.__stack.append(action.index)
 
-    def __reduce(self, action: Action):
+    def __reduce(self, action: Action, token: Token):
         grammarRule: GrammarReference = next(
             (line for line in self.__grammarList if line.rule == action.index), None
         )
@@ -144,19 +150,25 @@ class Parser:
         [self.__stack.pop() for _ in range(grammarRule.quantity)]
         self.__goTo(grammarRule.nonTerminal)
         
+        if(self.__semanticError): return
         try:
-            self.__semanticStack,self.__scanner.writer= grammarRule.action(
+            nonTerminalToken = grammarRule.action(
                 self.__semanticStack,
                 self.__writer,
                 self.__symbolList)
-        except:
-            # Adicionar tratamento de erro e a flag que interrompe a geração do código em C
+            
+            [self.__semanticStack.pop() for _ in range(grammarRule.quantity)]
+            self.__semanticStack.append(nonTerminalToken)
+
+        except Exception as e:
+            print(f"{e}, linha: {token.line}, coluna: {token.column}")
+            self.__semanticError = True
             return
         return
 
-    def __shift(self, action: Action):
+    def __shift(self, action: Action, token: Token):
         self.__stack.append(action.index)
-
+        self.__semanticStack.append(token)
         return
 
     def __slr1(self):
@@ -177,16 +189,14 @@ class Parser:
             )
 
             if action.actionType == ActionType.SHIFT:
-                self.__shift(action)
-                self.__semanticStack.append(token)
+                self.__shift(action, token)
                 continue
             elif action.actionType == ActionType.REDUCE:
-                self.__reduce(action=action)
+                self.__reduce(action, token)
                 self.__isReduced = True
             elif action.actionType == ActionType.ACCEPT:
                 print("ACEITO: P' → P")
                 self.__closeGeneratedFile()
-                print("Parser successfully completed!")
                 return True
             else:
                 try:

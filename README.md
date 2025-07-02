@@ -30,3 +30,9 @@
     ```sh
         python ./src/main.py -p ./exampleCode.txt
     ```
+
+5. Para executar o output, use
+    ```sh
+        gcc output/program.c -o output/program
+        ./output/program
+    ```
