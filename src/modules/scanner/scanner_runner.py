@@ -30,6 +30,9 @@ class ScannerRunner:
 
         return token
     
+    def getSymbolsList(self)->list[Token]:
+        return self.scanner.symbolsList
+    
     def runAll(self)->list[Token, Error]:
         tokensList: list[Token, Error] = []
 

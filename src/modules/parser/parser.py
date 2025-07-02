@@ -1,3 +1,5 @@
+import copy
+import os
 from core.models.enums.failure_type import FailureType
 from core.models.enums.token_class import TokenClass
 from core.models.error import Error
@@ -19,14 +21,37 @@ class Parser:
     __isReduced = False
     __isError = False
     __panic = False
+    __semanticStack = []
+    __symbolList = [Token]
+    __finalCodePath = "output/program.c"
+    __finalFile = None
+    __isNewLine = True
 
     def __init__(self, path: str):
         self.__scanner = ScannerRunner(path)
+        self.__symbolList = self.__scanner.getSymbolsList()
         __parserDefinitions = ParserDefinitions()
         self.__parseTable = __parserDefinitions.parsingTable
         self.__grammarList = __parserDefinitions.grammarList
         self.__stack = [0]
+        self.__initGeneratedFile()
 
+    def __closeGeneratedFile(self):
+        if self.__finalFile:
+            self.__finalFile.write("\nreturn 0;\n\n}\n")
+            self.__finalFile.close()
+            print(f"Arquivo gerado com sucesso em: {self.__finalCodePath}")
+        else:
+            print("Erro ao fechar o arquivo gerado.")
+    
+    def __initGeneratedFile(self):
+        if os.path.exists(self.__finalCodePath):
+            os.remove(self.__finalCodePath)
+        os.makedirs(os.path.dirname(self.__finalCodePath), exist_ok=True)
+        self.__finalFile= open(self.__finalCodePath, 'w', encoding='utf-8')
+        self.__finalFile.write("#include <stdio.h>\n\n\n")
+        self.__finalFile.write("int main() {\n")
+    
     def run(self):
         self.__slr1()
 
@@ -118,6 +143,15 @@ class Parser:
         print(grammarRule)
         [self.__stack.pop() for _ in range(grammarRule.quantity)]
         self.__goTo(grammarRule.nonTerminal)
+        
+        try:
+            self.__semanticStack,self.__scanner.writer= grammarRule.action(
+                self.__semanticStack,
+                self.__writer,
+                self.__symbolList)
+        except:
+            # Adicionar tratamento de erro e a flag que interrompe a geração do código em C
+            return
         return
 
     def __shift(self, action: Action):
@@ -144,12 +178,14 @@ class Parser:
 
             if action.actionType == ActionType.SHIFT:
                 self.__shift(action)
+                self.__semanticStack.append(token)
                 continue
             elif action.actionType == ActionType.REDUCE:
                 self.__reduce(action=action)
                 self.__isReduced = True
             elif action.actionType == ActionType.ACCEPT:
                 print("ACEITO: P' → P")
+                self.__closeGeneratedFile()
                 print("Parser successfully completed!")
                 return True
             else:
@@ -180,3 +216,11 @@ class Parser:
             self.__currentToken: Token = self.__scanner.getToken()
             return self.__currentToken
 
+    def __writer(self, text: str,identation: int = 0):
+            if(self.__isNewLine):
+                [self.__finalFile.write(" ") for _ in range(identation)]
+            if("\n" in text):
+                self.__isNewLine = True
+            else:
+                self.__isNewLine = False
+            self.__finalFile.write(text)
