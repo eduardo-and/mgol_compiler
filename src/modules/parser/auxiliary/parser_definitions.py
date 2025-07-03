@@ -23,14 +23,17 @@ class ParserDefinitions:
         self.__loop = ""
 
         def __verifySymbolList(token, symbolList):
-            symbolsLexemes = [t.lexeme for t in symbolList]
-            if(token.lexeme not in symbolsLexemes):
-                raise Exception("Erro: Variável não declarada")
+            ids = []
+            for i in symbolList:
+                if(i.tokenClass == TokenClass.ID and i.type != None):
+                    ids.append(i.lexeme)
+            if(token.lexeme not in ids):
+                raise Exception("\033[31mErro: Variável não declarada\033[0m")
             return
 
         def __verifySameType(op1, op2):
             if(op1.attributes["type"] != op2.attributes["type"]):
-                raise Exception("Erro: Operandos com tipos incompatíveis")
+                raise Exception("\033[31mErro: Operandos com tipos incompatíveis\033[0m")
             return
         
         def __verifyLoop(stack):
@@ -41,7 +44,6 @@ class ParserDefinitions:
                 else:
                     lexemes.append(t.nonTerminal.value)
 
-            print(" ".join(lexemes))
             return TokenClass.facaate.value in lexemes
 
         def __write(string: str,writer, stack):
@@ -142,7 +144,7 @@ class ParserDefinitions:
             ld = stack[-2]
             
             if("type" in ld.attributes and id.type != ld.attributes["type"]):
-                raise Exception("Erro: Tipos diferentes para atribuição")
+                raise Exception("\033[31mErro: Tipos diferentes para atribuição\033[0m")
             string = f"{id.lexeme} = {ld.attributes['lexeme']};\n"
             __write(string,writer,stack)
 
@@ -153,7 +155,7 @@ class ParserDefinitions:
             opr2 = stack[-1]
             __verifySameType(opr1, opr2)
             if(opr1.attributes['type'] == 'lit'):
-                raise Exception('Erro: Operando literal não suportado')
+                raise Exception('\033[31mErro: Operando literal não suportado\033[0m')
 
             return NonTerminalToken(NonTerminal.LD, {"lexeme": f"{opr1.attributes['lexeme']} {stack[-2].lexeme} {opr2.attributes['lexeme']}"})
 
