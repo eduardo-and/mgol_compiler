@@ -17,4 +17,4 @@ class Token:
         self.attributes= {}
 
     def __str__(self):
-        return f"classe: {self.tokenClass.value}, lexema: {self.lexeme}, tipo: {self.type}, linha: {self.line}, col: {self.column}"
+        return f"classe: {self.tokenClass.value}, lexema: {self.lexeme}, tipo: {self.type}, linha: {self.line}, col: {self.column}, atributos: {self.attributes}"

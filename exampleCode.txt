@@ -1,34 +1,33 @@
 inicio
-    varinicio
-        A,G,Z literal;
-        B inteiro;
-        D inteiro;
-        C real;
-    varfim;
-    escreva "Digite B";
-    leia B; {Testar Metodo de tratamento de Erro}
-    escreva "Digite A:";
-    leia A;
-    se(B>2.5) {comentario 1}
+  varinicio
+    A literal;
+    B inteiro;
+    D inteiro;
+    C real;
+  varfim;
+
+  escreva "Digite B";
+  leia B;
+  escreva "Digite A:";
+  leia A;
+
+  se(B>2)
+  entao
+    se(B<=4)
     entao
-        se(B<=4)
-        entao
-            escreva "B esta entre 2 e 4";
-        fimse
+      escreva "B esta entre 2 e 4";
     fimse
-    B<-B+1.5;
-    B<-B-2;
-    B<-B+3.0e1;
-    D<-B;
-    C<-5.0;
-    faca-ate (B>5)
-        escreva B;
-        B<-B+1;
-    fimfaca
-    escreva "\nB=\n";
-    escreva D;
-    escreva "\n";
-    escreva C;
-    escreva "\n";
-    escreva A;
+  fimse
+
+  B<-B+1;
+  B<-B+2;
+  B<-B+3;
+  D<-B;
+  C<-5.0;
+  escreva "\nB=\n";
+  escreva D;
+  escreva "\n";
+  escreva C;
+  escreva "\n";
+  escreva A;
 fim
