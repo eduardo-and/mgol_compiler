@@ -23,8 +23,8 @@ mgol_compiler/
 ├── assets/               # Arquivos auxiliares 
 ├── src/                  # Código-fonte principal
 │   ├── modules/
-         ├── parser/      # Analisador léxico
-         ├── scanner/     # Analisador sintático e gerador de código C
+         ├── parser/      # Analisador sintático e gerador de código C
+         ├── scanner/     # Analisador léxico
 │   ├── core/
 |        ├── models/      # Models utilizados na modelagem do projeto
 │   └── main.py           # Ponto de entrada do compilador
