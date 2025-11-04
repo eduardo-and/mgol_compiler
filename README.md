@@ -20,14 +20,16 @@ A linguagem **MGOL** é uma linguagem didática, inspirada em linguagens estrutu
 
 ```
 mgol_compiler/
-│
+├── assets/               # Arquivos auxiliares 
 ├── src/                  # Código-fonte principal
-│   ├── lexer/            # Analisador léxico
-│   ├── parser/           # Analisador sintático
-│   ├── generator/        # Gerador de código C
+│   ├── modules/
+         ├── parser/      # Analisador léxico
+         ├── scanner/     # Analisador sintático e gerador de código C
+│   ├── core/
+|        ├── models/      # Models utilizados na modelagem do projeto
 │   └── main.py           # Ponto de entrada do compilador
 │
-├── examples/             # Exemplos de programas MGOL
+├── exampleCode.txt       # Exemplo de programas MGOL
 ├── output/               # Código C gerado
 └── README.md
 ```
